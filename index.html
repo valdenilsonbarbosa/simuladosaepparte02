@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulado Misto - 40 Questões</title>
+<style>
+:root {
+  --bg:#f4f7fb; --panel:#fff; --ink:#162033; --muted:#667085; --line:#dbe3ef;
+  --primary:#2457d6; --primary-dark:#173d9e; --answered:#e7f7ee; --answered-border:#61bd84;
+  --warn:#fff3d6; --danger:#c62828; --danger-bg:#fff0f0; --shadow:0 12px 34px rgba(25,42,70,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+button,input{font:inherit}
+.hidden{display:none!important}
+.center{min-height:100vh;display:grid;place-items:center;padding:24px}
+.start-card,.result-card{width:min(760px,100%);background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:32px;box-shadow:var(--shadow)}
+.pill{display:inline-flex;padding:6px 10px;border-radius:999px;background:#eaf0ff;color:var(--primary-dark);font-size:12px;font-weight:800}
+h1{margin:14px 0 8px;font-size:clamp(28px,4vw,40px)}
+.lead{color:var(--muted);line-height:1.6}
+.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:22px 0}
+.rule{border:1px solid var(--line);border-radius:13px;background:#fbfcfe;padding:13px}
+.rule strong{display:block;margin-bottom:4px}
+.name-label{display:block;font-weight:800;margin:16px 0 7px}
+#studentName{width:100%;padding:14px;border:1px solid #b9c4d3;border-radius:11px;outline:none}
+#studentName:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(36,87,214,.12)}
+.btn{border:0;border-radius:11px;padding:12px 16px;font-weight:800;cursor:pointer}
+.primary{background:var(--primary);color:#fff} .primary:hover{background:var(--primary-dark)}
+.secondary{background:#e9eef7;color:#25344d} .danger{background:var(--danger-bg);color:var(--danger);border:1px solid #ffc8c8}
+.full{width:100%;margin-top:14px}
+.exam{min-height:100vh;display:grid;grid-template-columns:280px 1fr}
+.sidebar{background:#fff;border-right:1px solid var(--line);padding:18px;position:sticky;top:0;height:100vh;overflow:auto}
+.studentbox{border:1px solid var(--line);border-radius:13px;padding:12px;background:#fbfcfe;margin-bottom:14px}
+.studentbox small{display:block;color:var(--muted);margin-bottom:4px}
+.qgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.qbtn{aspect-ratio:1/1;border:1px solid var(--line);background:#fff;border-radius:9px;cursor:pointer;font-weight:800;color:#3b465b}
+.qbtn.answered{background:var(--answered);border-color:var(--answered-border);color:#12653d}
+.qbtn.current{background:var(--primary);border-color:var(--primary);color:#fff}
+.legend{font-size:12px;color:var(--muted);line-height:1.6;margin:12px 0 16px}
+.main{min-width:0;padding:24px clamp(16px,4vw,44px) 44px}
+.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;background:rgba(244,247,251,.95);backdrop-filter:blur(7px);padding:4px 0 14px}
+.progress-wrap{flex:1} .progress-label{font-size:13px;color:var(--muted);margin-bottom:6px}
+.track{height:9px;background:#e1e7f0;border-radius:999px;overflow:hidden} .bar{height:100%;width:0;background:var(--primary)}
+.timer{min-width:155px;background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px 13px;text-align:center;box-shadow:0 5px 16px rgba(25,42,70,.05)}
+.timer small{display:block;color:var(--muted)} .timer strong{font-size:21px;font-variant-numeric:tabular-nums}
+.question-card{max-width:980px;margin:14px auto 0;background:#fff;border:1px solid var(--line);border-radius:20px;padding:clamp(20px,4vw,36px);box-shadow:var(--shadow)}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:17px} .meta span{padding:6px 9px;border-radius:999px;background:#f0f3f8;color:#475467;font-size:12px;font-weight:800}
+.question-text{font-size:clamp(19px,2.4vw,25px);line-height:1.42;margin:0 0 18px;white-space:pre-line}
+.code{white-space:pre-wrap;overflow:auto;background:#152033;color:#eef4ff;border-radius:13px;padding:15px;margin:0 0 18px;font-family:Consolas,monospace;font-size:13px;line-height:1.55}
+.option{display:flex;align-items:flex-start;gap:12px;padding:14px 15px;border:1px solid var(--line);border-radius:13px;margin:10px 0;cursor:pointer;transition:.15s}
+.option:hover{border-color:#9eb3e1;background:#fbfdff} .option.selected{border-color:var(--primary);background:#eef4ff}
+.option input{margin-top:4px;accent-color:var(--primary)} .letter{display:grid;place-items:center;min-width:29px;height:29px;border-radius:8px;background:#eef2f7;font-weight:900}
+.nav{max-width:980px;margin:17px auto 0;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.score{font-size:52px;font-weight:900;color:var(--primary-dark);margin:8px 0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.stat{border:1px solid var(--line);border-radius:13px;padding:13px;background:#fbfcfe} .stat strong{font-size:24px;display:block}
+.locked{padding:12px;border:1px solid #ffc8c8;background:var(--danger-bg);border-radius:10px;color:#8f1f1f;margin-bottom:14px}
+@media(max-width:880px){.exam{grid-template-columns:1fr}.sidebar{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--line)}.qgrid{grid-template-columns:repeat(10,1fr)}}
+@media(max-width:600px){.rules{grid-template-columns:1fr}.qgrid{grid-template-columns:repeat(8,1fr)}.topbar{flex-direction:column;align-items:stretch}.timer{width:100%}.stats{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<section id="startScreen" class="center">
+  <div class="start-card">
+    <span class="pill">Simulado misto • Desenvolvimento de Sistemas</span>
+    <h1>Simulado com 40 questões</h1>
+    <p class="lead">Questões mescladas de banco de dados, programação, lógica, informática, implantação, testes, documentação e versionamento.</p>
+    <div class="rules">
+      <div class="rule"><strong>Tempo</strong>2 horas com relógio regressivo.</div>
+      <div class="rule"><strong>Navegação</strong>40 botões para ir e voltar livremente.</div>
+      <div class="rule"><strong>Respostas</strong>Podem ser alteradas enquanto a prova estiver ativa.</div>
+      <div class="rule"><strong>Relatório</strong>PDF detalhado com acertos, erros e respostas.</div>
+    </div>
+    <label class="name-label" for="studentName">Nome completo do aluno</label>
+    <input id="studentName" type="text" autocomplete="name" placeholder="Digite o nome completo">
+    <button id="startBtn" class="btn primary full">Iniciar simulado</button>
+  </div>
+</section>
+
+<section id="examScreen" class="exam hidden">
+  <aside class="sidebar">
+    <div class="studentbox"><small>Aluno</small><strong id="studentDisplay"></strong></div>
+    <strong>Questões</strong>
+    <div id="questionGrid" class="qgrid" style="margin-top:10px"></div>
+    <div class="legend">Verde = respondida<br>Azul = questão atual</div>
+    <button id="finishBtn" class="btn danger" style="width:100%">Finalizar simulado</button>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="progress-wrap">
+        <div id="progressLabel" class="progress-label">0 de 40 respondidas</div>
+        <div class="track"><div id="progressBar" class="bar"></div></div>
+      </div>
+      <div class="timer"><small>Tempo restante</small><strong id="timerText">02:00:00</strong></div>
+    </div>
+
+    <article class="question-card">
+      <div class="meta">
+        <span id="numberTag">Questão 1 de 40</span>
+        <span id="idTag"></span>
+        <span id="topicTag"></span>
+      </div>
+      <pre id="codeBlock" class="code hidden"></pre>
+      <h2 id="questionText" class="question-text"></h2>
+      <div id="options"></div>
+    </article>
+
+    <div class="nav">
+      <button id="prevBtn" class="btn secondary">← Anterior</button>
+      <button id="nextBtn" class="btn primary">Próxima →</button>
+    </div>
+  </main>
+</section>
+
+<section id="resultScreen" class="center hidden">
+  <div class="result-card">
+    <span class="pill">Simulado finalizado</span>
+    <h1 id="resultName"></h1>
+    <div id="scoreText" class="score"></div>
+    <p id="percentageText" class="lead"></p>
+    <div class="stats">
+      <div class="stat"><strong id="correctStat">0</strong><span>Acertos</span></div>
+      <div class="stat"><strong id="wrongStat">0</strong><span>Erros</span></div>
+      <div class="stat"><strong id="blankStat">0</strong><span>Não respondidas</span></div>
+    </div>
+    <div id="finishReason" class="lead"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+      <button id="pdfBtn" class="btn primary">Gerar relatório em PDF</button>
+      <button id="newBtn" class="btn secondary">Nova tentativa</button>
+    </div>
+  </div>
+</section>
+
+<script>
+const QUESTIONS = [{"source": "simuladoBancodeDados.pdf", "source_id": "SAEP_69509", "topic": "Banco de Dados / SQL", "text": "Uma empresa de desenvolvimento de software contratou um programador para implementar um sistema de gerenciamento de pedidos que interaja com o banco de dados para realizar operações de criação, atualização e exclusão de dados, além de consultas. O mesmo precisa criar uma sequência correta de comandos para: (1) criar uma nova tabela, (2) inserir um registro nessa tabela e (3) conceder permissão de acesso a um usuário específico.\n\nPara implementar as consultas o programador deve", "options": ["CREATE TABLE pedidos (id INT, nome VARCHAR(50), quantidade INT); INSERT INTO pedidos VALUES (1, 'Produto A', 10); GRANT SELECT ON pedidos TO usuario;", "CREATE TABLE pedidos (id INT, nome VARCHAR(50), quantidade INT); GRANT SELECT ON pedidos TO usuario; INSERT INTO pedidos VALUES (1, 'Produto A', 10);", "GRANT SELECT ON pedidos TO usuario; INSERT INTO pedidos VALUES (1, 'Produto A', 10); CREATE TABLE pedidos (id INT, nome VARCHAR(50), quantidade INT);", "INSERT INTO pedidos VALUES (1, 'Produto A', 10); CREATE TABLE pedidos (id INT, nome VARCHAR(50), quantidade INT); GRANT SELECT ON pedidos TO usuario;"], "code": null, "answer": "A", "number": 1}, {"source": "Simulado.html", "source_id": "SAEP_57494", "topic": "Lógica de Programação", "text": "Sendo a e b variáveis inteiras em um programa, a expressão lógica:\nNÃO ((x > y) OU (x = y) E NÃO (a <= b))\n\nÉ equivalente a:", "options": ["(x < y) OU (a > b)", "(x <= y) E (a >= b)", "(x >= y) E (a <= b)", "(x > y) OU (a < b)"], "code": null, "answer": "B", "number": 2}, {"source": "avaliações (28).pdf", "source_id": "SAEP_60041", "topic": "Informática / Editor de Texto", "text": "Você faz parte de uma equipe de desenvolvimento responsável por criar um software de gerenciamento financeiro. O projeto foi concluído e agora é necessário preparar um manual do usuário abrangente para garantir que os usuários possam aproveitar ao máximo todas as funcionalidades oferecidas. Na diagramação do manual é importante destacar as informações cruciais.\n\nUsando o Editor de Texto o destaque das informações é feito através da ferramenta", "options": ["Localizar", "Pincel de Formatação", "Negrito", "Justificar"], "code": null, "answer": "C", "number": 3}, {"source": "avaliações (29).pdf", "source_id": "SAEP_60464", "topic": "Boas Práticas de Programação", "text": "Você está prestes a iniciar o desenvolvimento de um novo projeto de software. Antes de começar a codificar, você percebe a importância de estabelecer boas práticas desde o início para garantir a legibilidade e manutenção futura do código. Entre essas práticas, a inserção de espaços e tabulações no início de cada linha é essencial para facilitar a compreensão da estrutura do programa.\n\nA prática de codificação a ser usada para criar o código é", "options": ["Nomeação Adequada de Funções e Métodos", "Utilização de Comentários Detalhados", "Adoção de Nomes de Variáveis Extensos", "Aplicação de Padrões de Indentação Consistentes"], "code": null, "answer": "D", "number": 4}, {"source": "Simulado(1).html", "source_id": "SAEP_65721", "topic": "Algoritmos / Recursão", "text": "A principal característica da recursão que a torna uma técnica eficaz na resolução de algoritmos é:", "options": ["Simplificar a lógica de algoritmos complexos, dividindo-os em subproblemas menores.", "Permitir a manipulação direta de estruturas de dados complexas.", "Reduzir a quantidade de memória necessária para armazenar dados.", "Evitar a necessidade de loops iterativos, otimizando o desempenho."], "code": null, "answer": "A", "number": 5}, {"source": "versionamentogit.vercel.app", "source_id": "GIT-01", "topic": "Git e GitHub", "text": "Qual comando transforma a pasta atual em um repositório Git local?", "options": ["git push", "git init", "git status", "git clone"], "code": null, "answer": "B", "number": 6}, {"source": "simuladoBancodeDados.pdf", "source_id": "SAEP_89978", "topic": "Banco de Dados / DDL", "text": "A equipe de desenvolvimento de um sistema decidiu que a tabela Clientes_Inativos deve ser removida permanentemente do banco de dados. Essa ação deve eliminar não apenas os dados, mas também a estrutura e as definições da tabela do catálogo do sistema.\n\nQual comando SQL deve ser utilizado para realizar essa remoção?", "options": ["ERASE TABLE Clientes_Inativos;", "REMOVE TABLE Clientes_Inativos;", "DROP TABLE Clientes_Inativos", "DELETE TABLE Clientes_Inativos;"], "code": null, "answer": "C", "number": 7}, {"source": "Simulado.html", "source_id": "SAEP_65727", "topic": "Lógica / Kotlin", "text": "Um desenvolvedor em Kotlin precisa verificar a faixa etária do usuário (0-10: Infantil, 11-17: Adolescente, 18-24: Jovem, 25-59: Adulto, 60+: Idoso) ou exibir mensagem de erro para idades inválidas (<0).\n\nO comando utilizado para controlar e verificar a faixa etária é:", "options": ["laço for", "switch", "if simples", "if-else aninhadas"], "code": null, "answer": "D", "number": 8}, {"source": "avaliações (28).pdf", "source_id": "SAEP_71090", "topic": "Análise de Requisitos", "text": "Uma empresa de comércio eletrônico está desenvolvendo um novo sistema para gerenciar vendas online. Durante a fase de análise, a equipe de desenvolvimento recebeu uma lista de requisitos que devem ser classificados em funcionais e não funcionais. A lista de requisitos inclui:\n\n- Permitir que o cliente realize login no sistema.\n- Emitir nota fiscal para cada compra.\n- Garantir alta disponibilidade do sistema.\n- Assegurar a segurança das informações dos clientes.\n\nAnalise os requisitos apresentados e organize-os em funcionais e não funcionais.", "options": ["Requisitos funcionais: permitir que o cliente realize login no sistema; emitir nota fiscal. Requisitos não funcionais: alta disponibilidade; segurança das informações.", "Requisitos funcionais: alta disponibilidade; emitir nota fiscal. Requisitos não funcionais: segurança das informações; permitir que o cliente realize login no sistema.", "Requisitos funcionais: alta disponibilidade; segurança das informações. Requisitos não funcionais: permitir que o cliente realize login no sistema; emitir nota fiscal.", "Requisitos funcionais: alta disponibilidade; segurança das informações. Requisitos não funcionais: permitir que o cliente realize login no sistema; emitir nota fiscal."], "code": null, "answer": "A", "number": 9}, {"source": "avaliações (29).pdf", "source_id": "SAEP_96196", "topic": "Informática / Segurança dos Dados", "text": "Uma equipe finalizou a documentação de um sistema web, composta pelo manual de instalação, diagramas da arquitetura e arquivos de configuração utilizados durante a implantação. Esses arquivos estão armazenados no computador utilizado pela equipe e precisam permanecer disponíveis mesmo em caso de falha do dispositivo de armazenamento.\n\nPara reduzir o risco de perda da documentação, a equipe precisa utilizar um recurso que mantenha uma cópia dos arquivos em outro local, permitindo sua recuperação caso os arquivos originais sejam perdidos ou fiquem inacessíveis.\n\nQual procedimento atende aos requisitos apresentados?", "options": ["Aplicar a criptografia de disco", "Executar o backup dos dados", "Instalar um software antivírus", "Configurar um firewall de rede"], "code": null, "answer": "B", "number": 10}, {"source": "Simulado(1).html", "source_id": "SAEP_59919", "topic": "Estruturas de Dados", "text": "A estrutura de dados ideal para implementar os comandos 'Desfazer' (Undo) e 'Refazer' (Redo) em um editor é:", "options": ["Árvore", "Lista", "Pilha", "Fila"], "code": null, "answer": "C", "number": 11}, {"source": "versionamentogit.vercel.app", "source_id": "GIT-02", "topic": "Git e GitHub", "text": "Depois de editar arquivos, qual comando permite verificar o estado atual do repositório, incluindo arquivos modificados e não rastreados?", "options": ["git log", "git merge", "git remote -v", "git status"], "code": null, "answer": "D", "number": 12}, {"source": "simuladoBancodeDados.pdf", "source_id": "SAEP_58031", "topic": "Modelagem de Dados", "text": "Ao criar um banco de dados, o senso comum determina que usemos tabelas separadas para diferentes tipos de entidades. Alguns exemplos são: clientes, pedidos, itens, mensagens, etc.\n\nEntretanto, também precisamos ter relacionamentos entre essas tabelas. Por exemplo, os clientes fazem pedidos e os pedidos contêm itens. Esses relacionamentos precisam ser representados no banco de dados. Além disso, ao buscar dados com SQL, precisamos usar certos tipos de consultas entre tabelas para obter o que precisamos.\n\nQual a melhor definição para o relacionamento muitos para muitos?", "options": ["Para cada registro da primeira tabela pode existir um ou mais correspondentes na segunda tabela e vice-versa.", "Para cada registro da primeira tabela existe, obrigatoriamente, um correspondente na segunda tabela e vice-versa.", "Para cada registro da primeira tabela pode existir um ou mais correspondentes na segunda tabela e para cada registro na segunda tabela existe apenas um registro correspondente na primeira tabela.", "Para cada registro da primeira tabela existirá, obrigatoriamente, um ou mais correspondentes na segunda tabela e vice-versa."], "code": null, "answer": "A", "number": 13}, {"source": "Simulado.html", "source_id": "SAEP_65719", "topic": "Programação / Kotlin", "text": "Desenvolvendo um programa em Kotlin para calcular a média de três notas de um aluno (com casas decimais).\n\nEscolha o tipo de variável que melhor se adequa para armazenar as notas dos alunos:", "options": ["String", "Double", "Boolean", "Int"], "code": null, "answer": "B", "number": 14}, {"source": "avaliações (28).pdf", "source_id": "SAEP_70878", "topic": "Integração de Sistemas", "text": "Uma empresa de logística precisa integrar seu sistema de gestão de estoque com o sistema de vendas online para garantir a atualização automática dos níveis de estoque. A equipe de desenvolvimento deve configurar e parametrizar os sistemas de acordo com as especificações fornecidas.\n\nProponha uma estratégia de integração para garantir que os sistemas compartilhem os dados de estoque em tempo real.", "options": ["Configurar um servidor FTP para a transferência de dados entre os sistemas.", "Implementar um banco de dados compartilhado entre os sistemas.", "Utilizar APIs RESTful para a comunicação entre os sistemas.", "Uma integração por arquivos CSV para sincronizar os sistemas periodicamente."], "code": null, "answer": "C", "number": 15}, {"source": "avaliações (29).pdf", "source_id": "SAEP_50837", "topic": "Informática / Excel", "text": "Durante a manutenção de um sistema, um supervisor precisa utilizar o Excel para gerenciar informações e realizar cálculos utilizando fórmulas complexas. Na tabela, foi registrado o número de horas trabalhadas em cada dia da semana por cada técnico de manutenção.\n\nQual fórmula do Excel o aluno deve utilizar para calcular o número total de horas trabalhadas na semana de todos os técnicos de manutenção?", "options": ["=MÍNIMO(B2:F4)", "=MÁXIMO(B2:F4)", "=MÉDIA(B2:F4)", "=SOMA(B2:F4)"], "code": null, "answer": "D", "number": 16}, {"source": "Simulado(1).html", "source_id": "SAEP_57900", "topic": "Orientação a Objetos", "text": "O conceito de Encapsulamento na Orientação a Objetos:", "options": ["torna o processo de desenvolvimento acelerado e simplificado, já que os usuários dos objetos não precisam necessariamente saber como eles são constituídos internamente.", "permite selecionar funcionalidades dinamicamente durante a execução.", "denota uma situação na qual um objeto pode se comportar de maneiras diferentes.", "garante a reutilização total do código por herança."], "code": null, "answer": "A", "number": 17}, {"source": "versionamentogit.vercel.app", "source_id": "GIT-03", "topic": "Git e GitHub", "text": "Qual é a principal finalidade de uma branch em um projeto versionado?", "options": ["Instalar o GitHub no computador.", "Criar uma linha de desenvolvimento separada da principal.", "Publicar automaticamente o site.", "Apagar versões antigas do projeto."], "code": null, "answer": "B", "number": 18}, {"source": "simuladoBancodeDados.pdf", "source_id": "SAEP_79618", "topic": "Modelagem de Dados", "text": "Durante a fase inicial do desenvolvimento de um sistema de gerenciamento para uma loja, a equipe de análise precisa compreender e organizar todas as informações que serão armazenadas no banco de dados. Nesta etapa, utiliza-se a modelagem de dados para representar, de forma clara e estruturada, os elementos que compõem o sistema, como entidades, atributos e os relacionamentos entre elas. Essa representação facilita a comunicação entre os profissionais da área técnica e os stakeholders.\n\nIdentifique a etapa da modelagem de dados em que são representadas as entidades, atributos e relacionamentos de forma independente do SGBD.", "options": ["Modelagem física", "Modelagem lógica", "Modelagem conceitual", "Modelagem relacional"], "code": null, "answer": "C", "number": 19}, {"source": "Simulado.html", "source_id": "SAEP_53128", "topic": "Algoritmos / Ordenação", "text": "Qual a formação do vetor após a terceira passagem do algoritmo Bubble Sort?", "options": ["[1, 3, 5, 7, 2, 6, 4, 8, 9, 10]", "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]", "[3, 1, 7, 5, 8, 2, 6, 4, 9, 10]", "[1, 3, 5, 2, 6, 4, 7, 8, 9, 10]"], "code": "programa {\n  funcao inicio() {\n    inteiro numeros[10] = {3, 10, 1, 7, 5, 8, 2, 6, 4, 9}\n    inteiro i, j, aux\n    para(i = 0; i < 10; i++){\n      para(j = 0; j < 9; j++){\n        se(numeros[j] > numeros[j + 1]){\n          aux = numeros[j]\n          numeros[j] = numeros[j + 1]\n          numeros[j + 1] = aux\n        }\n      }\n    }\n  }\n}", "answer": "D", "number": 20}, {"source": "avaliações (28).pdf", "source_id": "SAEP_53267", "topic": "Implantação / Banco de Dados", "text": "A equipe de TI de uma instituição de grande porte está lidando com a implantação de um novo sistema de banco de dados. A tarefa envolve garantir a compatibilidade, seguir os procedimentos adequados para instalação e migração de dados, considerando a usabilidade, robustez, integridade e segurança dos dados. A equipe necessita também aplicar as melhores técnicas de modelagem e linguagem de manipulação de dados.\n\nQual estratégia adequada que a equipe de TI deve adotar para garantir uma implementação bem-sucedida do banco de dados?", "options": ["Aplicar as técnicas apropriadas de modelagem de dados, garantir a compatibilidade, seguir os procedimentos de instalação, e garantir a migração de dados segura e eficiente.", "Focar na segurança dos dados e ignorar outros aspectos como usabilidade e robustez.", "Usar uma linguagem de programação menos conhecida e menos eficiente para a modelagem dos dados, para explorar novas tecnologias.", "Ignorar os requisitos de compatibilidade e instalar o sistema imediatamente para economizar tempo."], "code": null, "answer": "A", "number": 21}, {"source": "avaliações (29).pdf", "source_id": "SAEP_52972", "topic": "Documentação de Sistemas", "text": "Um desenvolvedor web ficou encarregado de documentar um novo sistema de gerenciamento de pedidos. Foi solicitada uma documentação detalhada que permita aos usuários entender e operar efetivamente o sistema e que também seja útil para futuros desenvolvedores.\n\nCom as especificações e detalhamentos citados, usando o Microsoft Word, o desenvolvedor deve", "options": ["criar um documento que liste todos os códigos de erro que o sistema pode produzir, com uma explicação para cada um.", "criar um documento com uma introdução geral ao sistema, seguida por seções separadas para cada função ou processo, organizadas de acordo com o fluxo de trabalho do sistema.", "começar escrevendo uma descrição detalhada de cada função do sistema sem fornecer uma visão geral do sistema ou explicar como as funções se relacionam.", "criar um único documento longo que descreva todas as funções e processos do sistema em ordem alfabética."], "code": null, "answer": "B", "number": 22}, {"source": "Simulado(1).html", "source_id": "SAEP_65723", "topic": "Programação / Kotlin", "text": "A função em Kotlin utilizada para converter um valor de String para número do tipo Double é:", "options": ["toString()", "toDouble()", "toDoubleOrNull()", "toIntOrNull()"], "code": null, "answer": "C", "number": 23}, {"source": "versionamentogit.vercel.app", "source_id": "GIT-04", "topic": "Git e GitHub", "text": "Qual comando envia commits do repositório local para o repositório remoto?", "options": ["git diff", "git status", "git pull", "git push"], "code": null, "answer": "D", "number": 24}, {"source": "simuladoBancodeDados.pdf", "source_id": "SAEP_92366", "topic": "Banco de Dados / Transações", "text": "Um sistema bancário realiza a transferência de valores entre duas contas. A operação consiste em dois passos: debitar R$ 100 da Conta A e creditar R$ 100 na Conta B. Se a energia cair após o débito, mas antes do crédito, o dinheiro \"desaparece\", violando a integridade. O desenvolvedor deve garantir que ambas as operações ocorram com sucesso ou nenhuma delas ocorra.\n\nQual a lógica de controle de transação pode ser implementada para garantir a atomicidade desta operação?", "options": ["START TRANSACTION; UPDATE ContaA SET Saldo = Saldo - 100; UPDATE ContaB SET Saldo = Saldo + 100; IF (erro) ROLLBACK; ELSE COMMIT;", "LOCK TABLE ContaA; UPDATE ContaA SET Saldo = Saldo - 100; UNLOCK TABLE; UPDATE ContaB SET Saldo = Saldo + 100;", "UPDATE ContaA SET Saldo = Saldo - 100; UPDATE ContaB SET Saldo = Saldo + 100; CHECKPOINT;", "UPDATE ContaA SET Saldo = Saldo - 100; SAVEPOINT P1; UPDATE ContaB SET Saldo = Saldo + 100;"], "code": null, "answer": "A", "number": 25}, {"source": "Simulado.html", "source_id": "SAEP_37396", "topic": "Lógica / Tipos de Dados", "text": "Um estudante precisa armazenar valores do tipo verdadeiro ou falso. Qual tipo de dado primitivo deve utilizar?", "options": ["Inteiro", "Lógico", "Vetores", "Real"], "code": null, "answer": "B", "number": 26}, {"source": "avaliações (28).pdf", "source_id": "SAEP_56959", "topic": "Análise de Requisitos", "text": "Identificar os requisitos do sistema é fundamental para o sucesso do projeto. Além de identificar os requisitos é necessário, também, classificar o requisito.\n\nQual das opções abaixo é um exemplo de requisito não funcional?", "options": ["O sistema deve mostrar, para cada aluno, as disciplinas em que o mesmo foi aprovado ou reprovado.", "O software deve emitir relatórios de compras e vendas por período.", "O sistema deve ser protegido para acesso apenas de usuários autorizados.", "Software deve possibilitar o cálculo das comissões dos vendedores, de acordo com os produtos vendidos."], "code": null, "answer": "C", "number": 27}, {"source": "avaliações (29).pdf", "source_id": "SAEP_57497", "topic": "Versionamento", "text": "No processo de desenvolvimento de software o sistema de controle de versão é responsável por gerenciar e manter diferentes versões do código fonte de um sistema.\n\nEm um sistema de controle de versão de código fonte, o que faz o comando COMMIT?", "options": ["O COMMIT cria uma nova ramificação do projeto no repositório.", "O COMMIT faz uma cópia da versão de um repositório para outro repositório.", "O COMMIT busca a versão do código fonte do repositório e transfere para a área de trabalho do desenvolvedor.", "O COMMIT salva as alterações realizadas pelo desenvolvedor."], "code": null, "answer": "D", "number": 28}, {"source": "Simulado(1).html", "source_id": "SAEP_57493", "topic": "Informática Básica", "text": "Quais dispositivos se enquadram na categoria de periféricos de Entrada e Saída (E/S) simultaneamente?", "options": ["Headset e impressora multifuncional.", "Mouse e impressora térmica.", "Teclado e impressora laserjet.", "Mouse e impressora deskjet."], "code": null, "answer": "A", "number": 29}, {"source": "simuladoBancodeDados.pdf", "source_id": "SAEP_89979", "topic": "Banco de Dados / DML", "text": "Um novo produto foi adquirido pela loja e precisa ser cadastrado no banco de dados. A tabela Produtos possui as colunas nome, preco e quantidade. O produto é um 'Teclado Gamer', custa 150.00 e existem 20 unidades em estoque.\n\nPara realizar o cadastro desse novo produto, o comando SQL correto é", "options": ["NEW ROW Produtos VALUES ('Teclado Gamer', 150.00, 20);", "INSERT INTO Produtos (nome, preco, quantidade) VALUES ('Teclado Gamer', 150.00, 20);", "UPDATE Produtos SET nome='Teclado Gamer', preco=150.00, quantidade=20;", "ADD INTO Produtos (nome, preco, quantidade) VALUES ('Teclado Gamer', 150.00, 20);"], "code": null, "answer": "B", "number": 30}, {"source": "Simulado.html", "source_id": "SAEP_71603", "topic": "Versionamento", "text": "Para registrar, organizar histórico de alterações no código e permitir trabalho colaborativo na equipe, qual tecnologia de controle de versão utilizar?", "options": ["CVS", "Mercurial", "Git", "Subversion"], "code": null, "answer": "C", "number": 31}, {"source": "avaliações (28).pdf", "source_id": "SAEP_52962", "topic": "Informática / Documentação", "text": "Ao desenvolver a documentação técnica de um novo sistema web, é fundamental seguir as normas e padrões de qualidade, usabilidade, robustez, integridade e segurança. Parte desta tarefa envolve o uso eficiente de softwares de escritório para produzir um documento bem estruturado e fácil de navegar. Uma das etapas cruciais é a numeração das páginas.\n\nConsiderando a necessidade de numerar as páginas do documento, o desenvolvedor deve", "options": ["escrever o documento inteiro antes de começar a numeração das páginas.", "inserir manualmente o número de cada página, no início de cada seção.", "inserir uma tabela no início do documento para registrar a numeração de cada página.", "utilizar a funcionalidade automática de numeração de páginas do software de escritório desde o início do documento."], "code": null, "answer": "D", "number": 32}, {"source": "avaliações (29).pdf", "source_id": "SAEP_57498", "topic": "Refatoração", "text": "\"Bad Smell\" é uma situação que a estrutura de um projeto de software pode ser melhorada através de refatoração. Uma determinada classe de um determinado sistema assume várias responsabilidades e é muito extensa.\n\nÀ bad smell é dado o nome de:", "options": ["classe grande.", "Complexidade condicional.", "Classe preguiçosa.", "Código morto."], "code": null, "answer": "A", "number": 33}, {"source": "Simulado(1).html", "source_id": "SAEP_92148", "topic": "Estruturas de Dados", "text": "Simulando a seguinte sequência de ações em um editor de texto com histórico em Pilha (LIFO):\n1. Digita A | 2. Digita B | 3. Undo | 4. Digita C | 5. Digita D | 6. Undo | 7. Digita E\n\nQual o conteúdo da pilha lido da base para o topo?", "options": ["[E, C, A]", "[A, C, E]", "[A, B, C, D, E]", "[C, E]"], "code": null, "answer": "B", "number": 34}, {"source": "simuladoBancodeDados.pdf", "source_id": "SAEP_58029", "topic": "Banco de Dados / Chaves", "text": "Em banco de dados existe o conceito de chave primária (primary key) e chave estrangeira (foreign key). A chave primária identifica, exclusivamente, cada registro em uma tabela. As chaves primárias devem conter valores únicos e não podem conter valores nulos.\n\nQual das opções abaixo justifica o uso de chaves primárias em banco de dados?", "options": ["Chaves tornam lento o banco de dados, por isso, é melhor não utilizar.", "Criar chaves de tipos de dado string é recomendado, pois assim pode armazenar valores strings e numéricos.", "O uso de chaves traz benefício e consistência para o banco de dados.", "O uso de chaves só deve ser realizado em bancos de dados multiusuários."], "code": null, "answer": "C", "number": 35}, {"source": "avaliações (28).pdf", "source_id": "SAEP_57955", "topic": "Implantação de Sistemas", "text": "A implantação de um software é um grande desafio e a entrega do projeto é apenas parte dele. Implantar, de maneira satisfatória, gera maior engajamento e fidelização dos usuários.\n\nO que envolve o processo de Implantação de Software?", "options": ["Processo de implementação de software.", "Os componentes de sistema são desenvolvidos de acordo com os requisitos.", "Os agentes que interagem com o sistema são identificados e os casos de uso são desenvolvidos.", "Uma versão do produto é criada, distribuída aos usuários e instalada para utilização no local de trabalho."], "code": null, "answer": "D", "number": 36}, {"source": "avaliações (29).pdf", "source_id": "SAEP_71470", "topic": "Desenvolvimento Mobile", "text": "Durante o desenvolvimento de um aplicativo interativo, um dos desafios propostos exige que o aluno mantenha pressionado um botão na tela para carregar uma barra de progresso até que ela fique completa. O tempo de carregamento é proporcional ao tempo que o botão é pressionado, e a atualização da barra deve ocorrer em intervalos regulares.\n\nDe que maneira é possível detectar quando o botão está pressionado e atualizar a barra de progresso continuamente até que o usuário solte a tela?", "options": ["Implementar um OnTouchListener para detectar o pressionamento e utilizar um Handler para atualizar a barra de progresso em intervalos regulares.", "Usar um MotionEvent para detectar o toque prolongado e atualizar a barra de progresso.", "Utilizar um GestureDetector para detectar o pressionamento prolongado e atualizar a barra de progresso.", "Criar um Timer para atualizar a barra de progresso enquanto o botão está pressionado."], "code": null, "answer": "A", "number": 37}, {"source": "simuladoBancodeDados.pdf", "source_id": "SAEP_69508", "topic": "Banco de Dados / SQL", "text": "Uma empresa de desenvolvimento de software está trabalhando em um sistema que gerencia informações de clientes e pedidos. Um dos desenvolvedores precisa criar um banco de dados relacional que permita armazenar e manipular os dados de maneira eficiente. Durante o desenvolvimento, ele utiliza comandos em SQL para criar e configurar tabelas, inserir e modificar dados, e definir permissões para diferentes usuários.\n\nPara uma sequência de operações que utiliza adequadamente as linguagens DDL, DML e DCL, o desenvolvedor deve aplicar qual comando?", "options": ["CREATE INDEX idx_nome ON Clientes (Nome); UPDATE Clientes SET Nome = 'Ana' WHERE ID = 1; REVOKE ALL PRIVILEGES ON Clientes FROM usuario;", "CREATE TABLE Clientes (ID INT, Nome VARCHAR(50)); INSERT INTO Clientes (ID, Nome) VALUES (1, 'João'); GRANT SELECT ON Clientes TO usuario;", "ALTER TABLE Clientes ADD COLUMN Endereco VARCHAR(100); DELETE FROM Clientes WHERE ID = 1; REVOKE SELECT ON Clientes FROM usuario;", "DROP TABLE Clientes; INSERT INTO Clientes (ID, Nome) VALUES (2, 'Maria'); GRANT DELETE ON Clientes TO usuario;"], "code": null, "answer": "B", "number": 38}, {"source": "avaliações (28).pdf", "source_id": "SAEP_57956", "topic": "Testes de Sistemas", "text": "A implantação de um software envolve testes realizados por usuários finais sem a participação dos desenvolvedores.\n\nQual o nome que é dado a esse tipo de teste?", "options": ["Teste de Caixa Preta.", "Teste Alfa.", "Teste Beta.", "Teste de Caixa Branca."], "code": null, "answer": "C", "number": 39}, {"source": "avaliações (29).pdf", "source_id": "SAEP_60070", "topic": "Estruturas de Dados", "text": "Um programador está trabalhando em um projeto que requer a implementação de uma estrutura de dados especializada para lidar com grandes volumes de dados em tempo real. Ele precisa escolher a estrutura de dados mais eficiente para otimizar a velocidade de inserção, remoção e consulta de elementos.\n\nA estrutura de dados ideal a ser utilizada nesta situação é a", "options": ["Árvore AVL", "Fila de Prioridade", "Lista Duplamente Encadeada", "Tabela Hash"], "code": null, "answer": "D", "number": 40}];
+const LETTERS = ['A','B','C','D'];
+const DURATION_MS = 2 * 60 * 60 * 1000;
+const STORAGE_KEY = 'simulado_misto_40_fontes_v1';
+
+let state = {
+  status:'not_started',
+  student:'',
+  answers:Array(QUESTIONS.length).fill(null),
+  current:0,
+  startedAt:null,
+  deadline:null,
+  finishedAt:null,
+  finishReason:''
+};
+let timerInterval = null;
+const $ = id => document.getElementById(id);
+
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function loadState(){
+  try {
+    const x = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if(!x || !Array.isArray(x.answers) || x.answers.length !== QUESTIONS.length) return false;
+    state = x; return true;
+  } catch(e) { return false; }
+}
+function show(name){
+  $('startScreen').classList.toggle('hidden',name!=='start');
+  $('examScreen').classList.toggle('hidden',name!=='exam');
+  $('resultScreen').classList.toggle('hidden',name!=='result');
+}
+function esc(v){ return String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;"); }
+
+function startExam(){
+  const name = $('studentName').value.trim();
+  if(name.length < 3){ alert('Digite o nome completo do aluno.'); $('studentName').focus(); return; }
+  const now = Date.now();
+  state = {status:'active',student:name,answers:Array(QUESTIONS.length).fill(null),current:0,startedAt:now,deadline:now+DURATION_MS,finishedAt:null,finishReason:''};
+  saveState(); enterExam();
+}
+
+function enterExam(){
+  show('exam');
+  $('studentDisplay').textContent = state.student;
+  buildGrid(); renderQuestion(); updateTimer();
+  clearInterval(timerInterval);
+  timerInterval = setInterval(updateTimer,1000);
+}
+
+function buildGrid(){
+  const grid = $('questionGrid'); grid.innerHTML='';
+  QUESTIONS.forEach((q,i)=>{
+    const b=document.createElement('button'); b.type='button'; b.className='qbtn'; b.textContent=i+1;
+    b.onclick=()=>{ if(state.status!=='active')return; state.current=i; saveState(); renderQuestion(); };
+    grid.appendChild(b);
+  });
+  updateGrid();
+}
+function updateGrid(){
+  [...document.querySelectorAll('.qbtn')].forEach((b,i)=>{
+    b.classList.toggle('answered',state.answers[i]!==null);
+    b.classList.toggle('current',i===state.current);
+  });
+}
+function updateProgress(){
+  const n=state.answers.filter(x=>x!==null).length;
+  $('progressLabel').textContent=`${n} de ${QUESTIONS.length} respondidas`;
+  $('progressBar').style.width=`${n/QUESTIONS.length*100}%`;
+}
+function renderQuestion(){
+  const q=QUESTIONS[state.current];
+  $('numberTag').textContent=`Questão ${state.current+1} de ${QUESTIONS.length}`;
+  $('idTag').textContent=q.source_id;
+  $('topicTag').textContent=q.topic;
+  $('questionText').textContent=q.text;
+  if(q.code){ $('codeBlock').textContent=q.code; $('codeBlock').classList.remove('hidden'); }
+  else $('codeBlock').classList.add('hidden');
+
+  const box=$('options'); box.innerHTML='';
+  q.options.forEach((opt,i)=>{
+    const label=document.createElement('label');
+    label.className='option'+(state.answers[state.current]===LETTERS[i]?' selected':'');
+    const input=document.createElement('input');
+    input.type='radio'; input.name='answer'; input.value=LETTERS[i];
+    input.checked=state.answers[state.current]===LETTERS[i];
+    input.disabled=state.status!=='active';
+    input.onchange=()=>{ state.answers[state.current]=LETTERS[i]; saveState(); renderQuestion(); };
+    const letter=document.createElement('span'); letter.className='letter'; letter.textContent=LETTERS[i];
+    const txt=document.createElement('span'); txt.textContent=opt;
+    label.append(input,letter,txt); box.appendChild(label);
+  });
+  $('prevBtn').disabled=state.current===0;
+  $('nextBtn').disabled=state.current===QUESTIONS.length-1;
+  updateGrid(); updateProgress();
+}
+function fmt(ms){
+  const sec=Math.max(0,Math.ceil(ms/1000));
+  const h=String(Math.floor(sec/3600)).padStart(2,'0');
+  const m=String(Math.floor((sec%3600)/60)).padStart(2,'0');
+  const s=String(sec%60).padStart(2,'0');
+  return `${h}:${m}:${s}`;
+}
+function updateTimer(){
+  if(state.status!=='active')return;
+  const rem=state.deadline-Date.now();
+  $('timerText').textContent=fmt(rem);
+  if(rem<=0) finishExam(true);
+}
+function finishExam(byTime=false){
+  if(state.status!=='active')return;
+  if(!byTime){
+    const blank=state.answers.filter(x=>x===null).length;
+    if(!confirm(blank?`Existem ${blank} questões sem resposta. Deseja finalizar mesmo assim?`:'Deseja finalizar o simulado agora?')) return;
+  }
+  state.status='completed'; state.finishedAt=Date.now();
+  state.finishReason=byTime?'Tempo encerrado. A prova foi bloqueada automaticamente.':'Simulado finalizado pelo aluno.';
+  saveState(); clearInterval(timerInterval); showResults();
+}
+function results(){
+  let correct=0,wrong=0,blank=0;
+  const rows=QUESTIONS.map((q,i)=>{
+    const marked=state.answers[i];
+    let status;
+    if(marked===null){blank++; status='Não respondida';}
+    else if(marked===q.answer){correct++; status='Acertou';}
+    else {wrong++; status='Errou';}
+    return {q,marked,status};
+  });
+  return {correct,wrong,blank,percent:Math.round(correct/QUESTIONS.length*100),rows};
+}
+function showResults(){
+  const r=results(); show('result');
+  $('resultName').textContent=state.student;
+  $('scoreText').textContent=`${r.correct} / ${QUESTIONS.length}`;
+  $('percentageText').textContent=`Aproveitamento: ${r.percent}%`;
+  $('correctStat').textContent=r.correct; $('wrongStat').textContent=r.wrong; $('blankStat').textContent=r.blank;
+  $('finishReason').textContent=state.finishReason;
+}
+function generatePDF(){
+  const r=results();
+  const items=r.rows.map((row,i)=>{
+    const q=row.q;
+    const markedIndex=row.marked===null?-1:LETTERS.indexOf(row.marked);
+    const markedText=markedIndex<0?'Não respondida':q.options[markedIndex];
+    const correctIndex=LETTERS.indexOf(q.answer);
+    const cls=row.status==='Acertou'?'ok':row.status==='Errou'?'err':'blank';
+    return `
+      <section class="item">
+        <div class="head"><strong>Questão ${i+1} — ${esc(q.source_id)}</strong><span class="${cls}">${row.status}</span></div>
+        <div class="topic">${esc(q.topic)}</div>
+        ${q.code?`<pre>${esc(q.code)}</pre>`:''}
+        <p class="stem">${esc(q.text)}</p>
+        <p><strong>Resposta do aluno:</strong> ${row.marked??'—'}${markedIndex>=0?') '+esc(markedText):''}</p>
+        <p class="correct"><strong>Resposta correta:</strong> ${q.answer}) ${esc(q.options[correctIndex])}</p>
+      </section>`;
+  }).join('');
+  const w=window.open('','_blank');
+  if(!w){alert('Permita pop-ups para gerar o relatório.');return;}
+  w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Relatório do Simulado</title>
+  <style>
+  body{font-family:Arial,sans-serif;margin:26px;color:#111;line-height:1.4} h1{margin-bottom:4px}
+  .summary{border:1px solid #bbb;padding:12px;border-radius:8px;margin:14px 0 20px}
+  .item{border:1px solid #ccc;border-radius:8px;padding:12px;margin:0 0 12px;page-break-inside:avoid}
+  .head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap} .topic{font-size:12px;color:#555;margin:4px 0 8px}
+  .stem{font-weight:600;white-space:pre-line} pre{white-space:pre-wrap;background:#f4f4f4;padding:10px;border-radius:6px}
+  .ok{color:#146c43;font-weight:bold} .err{color:#b42318;font-weight:bold} .blank{color:#667085;font-weight:bold} .correct{color:#146c43}
+  @media print{button{display:none}body{margin:12mm}}
+  </style></head><body>
+  <button onclick="window.print()" style="padding:10px 14px;margin-bottom:15px">Salvar / Imprimir PDF</button>
+  <h1>Relatório do Simulado Misto</h1>
+  <div><strong>Aluno:</strong> ${esc(state.student)}</div>
+  <div class="summary"><strong>Pontuação:</strong> ${r.correct} / ${QUESTIONS.length} — ${r.percent}%<br>
+  Acertos: ${r.correct} | Erros: ${r.wrong} | Não respondidas: ${r.blank}</div>
+  ${items}
+  <script>setTimeout(()=>window.print(),350);<\/script>
+  </body></html>`);
+  w.document.close();
+}
+
+$('startBtn').onclick=startExam;
+$('studentName').addEventListener('keydown',e=>{if(e.key==='Enter')startExam()});
+$('prevBtn').onclick=()=>{if(state.status==='active'&&state.current>0){state.current--;saveState();renderQuestion();}};
+$('nextBtn').onclick=()=>{if(state.status==='active'&&state.current<QUESTIONS.length-1){state.current++;saveState();renderQuestion();}};
+$('finishBtn').onclick=()=>finishExam(false);
+$('pdfBtn').onclick=generatePDF;
+$('newBtn').onclick=()=>{if(confirm('Deseja apagar esta tentativa deste navegador e iniciar outra?')){localStorage.removeItem(STORAGE_KEY);location.reload();}};
+
+if(loadState()){
+  if(state.status==='active'){
+    if(Date.now()>=state.deadline){state.status='completed';state.finishedAt=Date.now();state.finishReason='Tempo encerrado. A prova foi bloqueada automaticamente.';saveState();showResults();}
+    else enterExam();
+  } else if(state.status==='completed') showResults();
+  else show('start');
+} else show('start');
+</script>
+</body>
+</html>
